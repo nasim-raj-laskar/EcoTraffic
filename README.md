@@ -188,34 +188,43 @@ Exported to [**frame_metrics.csv**](output/frame_metrics.csv):
 
 # **📈 Statistical Analysis (Built-in)**
 
-Your code automatically performs:
 
 ### **1. Pearson & Spearman Correlations**
 
-Between entropy and CO₂ proxy.
+The correlation analysis yielded 
+
+$\rho_{\text{Pearson}} = -0.0151$ 
+and 
+$\rho_{\text{Spearman}} = -0.0407$, 
+
+indicating no linear or monotonic relationship between entropy and the CO2 proxy.
+
 
 ### **2. ANOVA Across Segments**
 
-Checks if entropy/CO₂ differ between temporal chunks of the video.
+$$
+\begin{aligned}
+F_{\text{entropy}} &= 2.4889,\quad p = 0.1149,\\[4pt]
+F_{\text{CO}_2}    &= 2.0452,\quad p = 0.1529.
+\end{aligned}
+$$
+
+
 
 ### **3. Mann-Whitney U Tests**
-
-Non-parametric comparison of segments.
-
-Matches your outputs:
-
-* CO₂ significantly differed across segments (p ≈ 0.0003)
-* Entropy did not show strong differences
-
+$$
+\begin{aligned}
+p_{\text{entropy}} &= 0.6577,\\[4pt]
+p_{\text{CO}_2}    &= 0.0003.
+\end{aligned}
+$$
 ---
 
-# **🎥 Output Placeholders**
-
-*(Replace these with your actual files when uploading to GitHub/competition)*
+# **🎥 Output **
 
 ### **1. Annotated Processed Video**
 
-**`/outputs/eco_entropy_output.mp4`**
+[**`/outputs/eco_entropy_output.mp4`**](output/eco_entropy_output.mp4)
 
 → Shows bounding boxes, track IDs, entropy, σE², efficiency, CO₂.
 
