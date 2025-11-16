@@ -146,21 +146,7 @@ K3 = 0.0
 
 # **⚙️ System Architecture**
 
-```mermaid
-flowchart TD
-    A[Video Input] --> B[YOLOv8 Detection]
-    B --> C[Kalman Filter Tracking]
-    C --> D[Velocity Extraction]
-    D --> E[Rolling Velocity Window]
-    E --> F[Shannon Entropy S_t]
-    D --> G[Kinetic Energy Computation]
-    G --> H[Variance σ_E²_t]
-    F --> I[Eco-Dynamic Estimation]
-    H --> I
-    I --> J[frame_metrics.csv]
-    I --> K[Analysis & Plots]
-    B --> L[Annotated Output Video]
-```
+![](assets/flow.png)
 
 ---
 
@@ -253,7 +239,7 @@ $$
 
 → Shows bounding boxes, track IDs, entropy, σE², efficiency, CO₂.
 
-![](output/ss.png)
+![](assets/ss.png)
 
 ---
 
