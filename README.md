@@ -1,4 +1,3 @@
-
 # **EcoTraffic**
 
 > *A Spatiotemporal Entropy & Eco-Dynamics Estimation Framework Using Computer Vision*
@@ -7,123 +6,132 @@
 
 ## **📌 Overview**
 
-**EcoTraffic** is a computational framework that interprets road traffic as a **non-equilibrium dynamical system**, where vehicle motion is modeled using concepts from **statistical mechanics**, **information theory**, and **kinetic theory**.
+**EcoTraffic** transforms roadside video into a set of **environment-aware motion disorder metrics** using:
 
-Rather than focusing on detection or tracking as the "main" feature, the system uses them only as **inputs** to derive:
+* Object detection (YOLOv8)
+* Motion tracking (Kalman + SORT assignment)
+* Velocity time-series modeling
+* Shannon entropy of velocity distributions
+* Kinetic energy variance
+* Per-cell spatiotemporal entropy fields
+* Eco-dynamics proxies (efficiency + CO₂ trend estimate)
 
-* **Shannon motion entropy**
-* **Velocity-distribution evolution**
-* **Kinetic energy variance**
-* **Spatiotemporal entropy fields**
-* **Eco-dynamic metrics (efficiency + CO₂ proxy)**
+This project fits directly into the theme **Automotive × Object Detection × Environment** by converting simple video into **interpretable environmental indicators** of traffic flow.
 
-EcoTraffic transforms simple roadside video into **analytical signals** describing traffic disorder, motion stability, and energetic inefficiency.
+Unlike classical CV projects, EcoTraffic does **not** focus on detection accuracy.
+Detection is merely a *measurement layer*.
+The core idea is **physical modeling of traffic motion** through entropy and kinetic dispersion.
+
+All metrics are logged into **frame_metrics.csv**, enabling deep time-series analysis and environmental trend estimation.
 
 ---
 
 # **📐 Theoretical Framework**
 
-## **1. Traffic as a Thermodynamic Ensemble**
+## **1. Velocity Distribution Estimation**
 
-Vehicles are treated as particles evolving in time under a non-equilibrium state.
-Let p_t(v)  be the empirical velocity distribution at time ( t ):
-
-$$
-p_t(v) = \frac{n(v,t)}{N(t)}
-$$
-
-The system entropy is the Shannon-Boltzmann entropy:
+Using tracked vehicle centroids:
 
 $$
-S(t) = -\sum_{v} p_t(v)\log p_t(v)
+v_i(t) = \sqrt{(x_i(t)-x_i(t-\Delta t))^2 + (y_i(t)-y_i(t-\Delta t))^2}
 $$
 
-Higher entropy → More disorder → Stop–go oscillation
-Lower entropy → Stable, fluid flow
+A rolling global velocity window of size ( W = 200 ) (as in the code) forms an empirical PDF:
+
+$$
+p_t(v) = \frac{\text{hist}(v_{t-W:t})}{\sum \text{hist}}
+$$
+
+This distribution evolves over time and serves as the basis for entropy and energy statistics.
 
 ---
 
-## **2. Entropy Dynamics**
-
-The temporal evolution of traffic disorder is:
+## **2. Motion Entropy (Global Shannon Entropy)**
 
 $$
-\dot{S}(t) = \frac{dS}{dt}
+S(t) = -\sum_{v} p_t(v) \log(p_t(v))
 $$
 
-A positive ( \dot{S} ) indicates traffic deterioration;
-a negative ( \dot{S} ) indicates recovery or flow stabilization.
+Interpretation:
+
+* **High entropy** → diverse velocities → unstable traffic → stop-go turbulence
+* **Low entropy** → uniform movement → stable traffic flow
+
+Your code computes this exactly via a histogram over recent velocity magnitudes.
 
 ---
 
 ## **3. Kinetic Energy Dispersion**
 
-For each tracked vehicle:
+For each instantaneous speed:
 
 $$
 E_i(t) = \frac{1}{2} v_i(t)^2
 $$
 
-The variance of the kinetic ensemble:
+Then global variance:
 
 $$
-\sigma_E^2(t) = \frac{1}{N(t)}
-\sum_{i=1}^{N(t)} (E_i(t) - \bar{E}(t))^2
+\sigma_E^2(t) = \textrm{Var}(E_i(t))
 $$
 
-This σᴱ² acts as a **"motion turbulence"** metric.
+This reflects **motion turbulence** and “jerkiness” in the flow.
 
 ---
 
-## **4. Velocity Distribution Modeling**
+## **4. Spatiotemporal Grid Entropy (Local Disorder Field)**
 
-EcoTraffic constructs a moving velocity window (e.g., last 200 velocities) to estimate:
+The frame is divided into a grid:
+
+* Width = 16 cells
+* Height = 9 cells
+* Each cell stores up to 100 recent speeds
+
+For each cell ( c ):
 
 $$
-p_t(v) \approx \text{Histogram}(v_{t - \Delta t : t})
+S_c = -\sum_{v} p_c(v)\log p_c(v)
 $$
 
-This approximates a non-stationary stochastic process governing driver interactions.
+Producing a **2D entropy heatmap** (not displayed in the output video but computed internally).
 
 ---
 
-## **5. Spatiotemporal Grid Entropy**
+## **5. Eco-Dynamic Models**
 
-The frame is divided into a grid ( G_x \times G_y ).
-For each cell ( c ), local entropy is:
+These models are deliberately simplified proxies (as you wrote in code).
 
-$$
-S_c = -\sum_v p_c(v)\log p_c(v)
-$$
-
-Resulting in a spatial entropy field:
-
-$$
-\mathbf{S}_{grid} \in \mathbb{R}^{G_x \times G_y}
-$$
-
----
-
-## **6. Eco-Dynamic Models**
-
-### **6.1 Efficiency Model**
+### **Efficiency Estimate**
 
 $$
 \eta(t) = \alpha e^{-\beta S(t)} + \gamma
 $$
 
-Entropy ↑ → Efficiency ↓.
+Used constants:
+
+```
+ALPHA = 1.0
+BETA = 1.0
+GAMMA = 0.0
+```
 
 ---
 
-### **6.2 CO₂ Proxy Model**
+### **CO₂ Trend Estimate (Proxy)**
 
 $$
-E_{\text{CO₂}}(t)
-= k_1, \sigma_E^2(t) + k_2, S(t) + k_3
+E_{\text{CO₂}}(t) = k_1 \sigma_E^2(t) + k_2 S(t) + k_3
 $$
 
-This captures the intuition that congestion increases both disorder and wasted kinetic energy, resulting in elevated emissions.
+These are **not physical CO₂ units**, only a **trend signal** combining turbulence & disorder.
+
+The code uses:
+
+```
+K1 = 1.0
+K2 = 0.5
+K3 = 0.0
+```
 
 ---
 
@@ -131,127 +139,159 @@ This captures the intuition that congestion increases both disorder and wasted k
 
 ```mermaid
 flowchart TD
-    A[Video Input] --> B[Object Detection]
-    B --> C[State Estimation Kalman]
+    A[Video Input] --> B[YOLOv8 Detection]
+    B --> C[Kalman Filter Tracking]
     C --> D[Velocity Extraction]
-    D --> E[Velocity Distribution Model]
-    E --> F[Entropy Computation St]
-    D --> G[Kinetic Energy Et]
-    G --> H[Variance σ_E²t]
+    D --> E[Rolling Velocity Window]
+    E --> F[Shannon Entropy S_t]
+    D --> G[Kinetic Energy Computation]
+    G --> H[Variance σ_E²_t]
     F --> I[Eco-Dynamic Estimation]
     H --> I
-    I --> J[Frame Metrics CSV]
-    I --> K[Plots & Segment Statistics]
-    B --> L[Annotated Video Output]
+    I --> J[frame_metrics.csv]
+    I --> K[Analysis & Plots]
+    B --> L[Annotated Output Video]
 ```
 
 ---
 
-# **🧩 Implementation Components**
+# **🧩 Implementation Breakdown**
 
-| Module                   | Description                                      |
-| ------------------------ | ------------------------------------------------ |
-| **Detection**            | YOLOv8 used only as a state measurement provider |
-| **Tracking**             | Kalman Filter + Hungarian assignment (SORT-like) |
-| **Kinematic Extraction** | Δx–Δy displacement → velocity → energy           |
-| **Entropy Estimation**   | Shannon entropy on rolling velocity PDF          |
-| **Energy Dispersion**    | Variance of kinetic energy proxy                 |
-| **Spatiotemporal Grid**  | Local entropy fields for structural disorder     |
-| **Eco-Dynamics**         | Efficiency + CO₂ estimation                      |
-| **Statistical Tests**    | ANOVA, Mann–Whitney on segments                  |
-
----
-
-# **📊 Output Metrics**
-
-Each frame generates:
-
-| Metric              | Meaning               |
-| ------------------- | --------------------- |
-| **Entropy S(t)**    | Motion disorder level |
-| **σᴱ²(t)**          | Kinetic turbulence    |
-| **Efficiency η(t)** | Eco-efficiency proxy  |
-| **CO₂ Estimate**    | Emission trend proxy  |
-| **n_tracks**        | Active vehicles       |
-| **Mean Speed**      | Avg. per-frame motion |
-
-All values are saved into **frame_metrics.csv**.
+| Module            | Description                                         |
+| ----------------- | --------------------------------------------------- |
+| Detection         | YOLOv8-l (only for bounding boxes)                  |
+| Tracking          | Kalman Filter (x, y, vx, vy) + Hungarian assignment |
+| Velocity Modeling | Δx-Δy displacement per frame                        |
+| Entropy           | Shannon entropy on histogram of last 200 velocities |
+| Energy Dispersion | Variance of kinetic energies                        |
+| Grid Entropy      | Local cell-wise velocity entropy map                |
+| Eco-Dynamics      | Efficiency + CO₂ trend proxy                        |
+| Statistics        | Pearson, Spearman, ANOVA, Mann-Whitney              |
 
 ---
 
-# **📈 Statistical Analysis**
+# **📊 Output Metrics (Per Frame)**
 
-EcoTraffic includes a built-in segment comparison system:
+Exported to [**frame_metrics.csv**](output\frame_metrics.csv):
 
-### **1. One-Way ANOVA**
-
-Tests whether entropy / CO₂ significantly differ across temporal segments.
-
-$$
-F = \frac{SS_\text{between}}{SS_\text{within}}
-$$
-
----
-
-### **2. Mann–Whitney U Test**
-
-Non-parametric pairwise test:
-
-$$
-U = \min(U_1, U_2)
-$$
-
-Used for robust comparisons of:
-
-* Entropy
-* CO₂ estimate
-* Kinetic variance
+| Column           | Meaning                            |
+| ---------------- | ---------------------------------- |
+| frame            | Frame index                        |
+| entropy          | Shannon entropy ( S(t) )           |
+| sigma_E2         | Kinetic energy variance            |
+| efficiency       | ( \eta(t) )                        |
+| E_co2            | CO₂ trend estimate                 |
+| n_tracks         | Number of active objects           |
+| mean_speed_frame | Avg. instantaneous per-frame speed |
 
 ---
 
-# **🚀 Key Features**
+# **📈 Statistical Analysis (Built-in)**
 
-* Thermodynamics-inspired traffic analysis
-* Velocity-distribution entropy modeling
-* Kinetic variance for turbulence estimation
-* Eco-dynamic approximation
-* Grid-wise spatiotemporal disorder mapping
-* Segment statistics for comparative research
-* Fully video-based (no sensors required)
-* Clean, extensible Python implementation
+Your code automatically performs:
 
----
+### **1. Pearson & Spearman Correlations**
 
-# **🔬 Research Applications**
+Between entropy and CO₂ proxy.
 
-* Traffic as a **statistical mechanical system**
-* Study of **phase transitions** (free flow → congestion)
-* Modeling **velocity fluctuations**
-* Eco-efficiency estimation from motion patterns
-* Entropy-based mobility research
-* Spatiotemporal disorder analysis
-* Transportation behavior modeling
+### **2. ANOVA Across Segments**
+
+Checks if entropy/CO₂ differ between temporal chunks of the video.
+
+### **3. Mann-Whitney U Tests**
+
+Non-parametric comparison of segments.
+
+Matches your outputs:
+
+* CO₂ significantly differed across segments (p ≈ 0.0003)
+* Entropy did not show strong differences
 
 ---
 
-# **⚠ Limitations**
+# **🎥 Output Placeholders**
 
-* Speed is relative (pixel-based, not calibrated in m/s)
-* CO₂ proxy is conceptual, not physically scaled
-* Single-camera perspective may introduce occlusion noise
-* Entropy uses velocity magnitude, not vector fields
+*(Replace these with your actual files when uploading to GitHub/competition)*
+
+### **1. Annotated Processed Video**
+
+**`/outputs/eco_entropy_output.mp4`**
+
+→ Shows bounding boxes, track IDs, entropy, σE², efficiency, CO₂.
+
+```
+[PLACEHOLDER: Insert GIF or thumbnail of output video]
+```
+
+---
+
+### **2. Entropy Time-Series Plot**
+
+```
+[PLACEHOLDER: entropy_timeseries.png]
+```
+
+### **3. CO₂ Estimate Time-Series Plot**
+
+```
+[PLACEHOLDER: co2_timeseries.png]
+```
+
+### **4. Kinetic Energy Variance Plot**
+
+```
+[PLACEHOLDER: sigmaE2_timeseries.png]
+```
+
+### **5. Efficiency Plot**
+
+```
+[PLACEHOLDER: efficiency_timeseries.png]
+```
+
+---
+
+# **📁 Dataset & Logs**
+
+All numerical results are saved into:
+
+```
+frame_metrics.csv
+```
+
+This CSV is the **primary dataset** for downstream analytics and environmental insights.
+
+---
+
+# **🚀 Key Contributions**
+
+* A **thermodynamics-inspired modeling** of traffic flow
+* Direct extraction of **environment-related signals** from plain video
+* Integration of **object detection + tracking + information theory**
+* A practical framework for **environmental mobility analytics**
+* Full reproducibility with a single Python file
+
+---
+
+# **⚠ Limitations (Accurate to Your Implementation)**
+
+* Speeds are in **pixels/frame**, not physical units
+* CO₂ output is a **proxy**, not physically calibrated
+* Single-camera perspective may cause occlusions
+* Entropy computed only on **velocity magnitude**, not directional fields
+* Grid entropy computed but **not rendered visually** in the output video (by design)
 
 ---
 
 # **📚 Conclusion**
 
-EcoTraffic demonstrates how simple video data can be transformed into **rich theoretical signals** through:
+EcoTraffic reframes traffic analysis as a **non-equilibrium dynamical system**, combining:
 
 * entropy modeling
-* energy dispersion
-* dynamical state reconstruction
-* statistical testing
-* eco-dynamic estimation
+* kinetic energy variance
+* stochastic velocity distributions
+* eco-dynamic proxies
+* segment-wise statistical tests
 
-It reframes traffic analysis from a **computer vision problem** to a **physical, information-theoretic modeling problem**, combining modern CV pipelines with deep mathematical concepts.
+This positions the project strongly within **Automotive**, **Object Detection**, and **Environment**, making it an ideal submission for competitions in this theme.
 
