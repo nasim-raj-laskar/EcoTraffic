@@ -26,17 +26,17 @@ EcoTraffic transforms simple roadside video into **analytical signals** describi
 ## **1. Traffic as a Thermodynamic Ensemble**
 
 Vehicles are treated as particles evolving in time under a non-equilibrium state.
-Let ( p_t(v) ) be the empirical velocity distribution at time ( t ):
+Let p_t(v)  be the empirical velocity distribution at time ( t ):
 
-[
+$$
 p_t(v) = \frac{n(v,t)}{N(t)}
-]
+$$
 
 The system entropy is the Shannon-Boltzmann entropy:
 
-[
+$$
 S(t) = -\sum_{v} p_t(v)\log p_t(v)
-]
+$$
 
 Higher entropy → More disorder → Stop–go oscillation
 Lower entropy → Stable, fluid flow
@@ -47,9 +47,9 @@ Lower entropy → Stable, fluid flow
 
 The temporal evolution of traffic disorder is:
 
-[
+$$
 \dot{S}(t) = \frac{dS}{dt}
-]
+$$
 
 A positive ( \dot{S} ) indicates traffic deterioration;
 a negative ( \dot{S} ) indicates recovery or flow stabilization.
@@ -60,16 +60,16 @@ a negative ( \dot{S} ) indicates recovery or flow stabilization.
 
 For each tracked vehicle:
 
-[
+$$
 E_i(t) = \frac{1}{2} v_i(t)^2
-]
+$$
 
 The variance of the kinetic ensemble:
 
-[
+$$
 \sigma_E^2(t) = \frac{1}{N(t)}
 \sum_{i=1}^{N(t)} (E_i(t) - \bar{E}(t))^2
-]
+$$
 
 This σᴱ² acts as a **"motion turbulence"** metric.
 
@@ -79,9 +79,9 @@ This σᴱ² acts as a **"motion turbulence"** metric.
 
 EcoTraffic constructs a moving velocity window (e.g., last 200 velocities) to estimate:
 
-[
+$$
 p_t(v) \approx \text{Histogram}(v_{t - \Delta t : t})
-]
+$$
 
 This approximates a non-stationary stochastic process governing driver interactions.
 
@@ -92,15 +92,15 @@ This approximates a non-stationary stochastic process governing driver interacti
 The frame is divided into a grid ( G_x \times G_y ).
 For each cell ( c ), local entropy is:
 
-[
+$$
 S_c = -\sum_v p_c(v)\log p_c(v)
-]
+$$
 
 Resulting in a spatial entropy field:
 
-[
+$$
 \mathbf{S}_{grid} \in \mathbb{R}^{G_x \times G_y}
-]
+$$
 
 ---
 
@@ -108,9 +108,9 @@ Resulting in a spatial entropy field:
 
 ### **6.1 Efficiency Model**
 
-[
+$$
 \eta(t) = \alpha e^{-\beta S(t)} + \gamma
-]
+$$
 
 Entropy ↑ → Efficiency ↓.
 
@@ -118,10 +118,10 @@ Entropy ↑ → Efficiency ↓.
 
 ### **6.2 CO₂ Proxy Model**
 
-[
+$$
 E_{\text{CO₂}}(t)
 = k_1, \sigma_E^2(t) + k_2, S(t) + k_3
-]
+$$
 
 This captures the intuition that congestion increases both disorder and wasted kinetic energy, resulting in elevated emissions.
 
@@ -187,9 +187,9 @@ EcoTraffic includes a built-in segment comparison system:
 
 Tests whether entropy / CO₂ significantly differ across temporal segments.
 
-[
+$$
 F = \frac{SS_\text{between}}{SS_\text{within}}
-]
+$$
 
 ---
 
@@ -197,10 +197,9 @@ F = \frac{SS_\text{between}}{SS_\text{within}}
 
 Non-parametric pairwise test:
 
-[
+$$
 U = \min(U_1, U_2)
-]
-
+$$
 Used for robust comparisons of:
 
 * Entropy
