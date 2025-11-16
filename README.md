@@ -195,16 +195,16 @@ Exported to [**frame_metrics.csv**](output/frame_metrics.csv):
 
 ---
 
-# **📈 Statistical Analysis (Built-in)**
 
+# **📈 Statistical Analysis (Built-in)**
 
 ### **1. Pearson & Spearman Correlations**
 
-The correlation analysis yielded 
+The correlation analysis yielded:
 
 $$
 \begin{aligned}
-\rho_{\text{Pearson}}  &= -0.0151,\\[4pt]
+\rho_{\text{Pearson}}  &= -0.0151,[4pt]
 \rho_{\text{Spearman}} &= -0.0407.
 \end{aligned}
 $$
@@ -213,12 +213,13 @@ $$
 \text{Both correlations indicate no linear or monotonic relationship between entropy and the CO}_2 \text{ proxy.}
 $$
 
+---
 
 ### **2. ANOVA Across Segments**
 
 $$
 \begin{aligned}
-F_{\text{entropy}} &= 2.4889,\quad p = 0.1149,\\[4pt]
+F_{\text{entropy}} &= 2.4889,\quad p = 0.1149,[4pt]
 F_{\text{CO}_2}    &= 2.0452,\quad p = 0.1529.
 \end{aligned}
 $$
@@ -227,23 +228,24 @@ $$
 \text{Neither metric shows statistically significant differences across temporal segments.}
 $$
 
+---
 
+### **3. Mann–Whitney U Tests**
 
-### **3. Mann-Whitney U Tests**
 $$
 \begin{aligned}
-p_{\text{entropy}} &= 0.6577,\\[4pt]
+p_{\text{entropy}} &= 0.6577,
 p_{\text{CO}_2}    &= 0.0003.
 \end{aligned}
 $$
 
-
 $$
 \text{Entropy shows no significant difference, while the CO}_2 \text{ proxy exhibits a strong segment-level difference.}
 $$
----
 
-# **🎥 Output **
+
+
+# **🎥 Output**
 
 ### **1. Annotated Processed Video**
 
@@ -268,7 +270,7 @@ $$
 
 ### **5. Efficiency Plot**
 
-![](output\efficiency_timeseries.png)
+![](output/efficiency_timeseries.png)
 
 ---
 
@@ -293,7 +295,7 @@ This CSV is the **primary dataset** for downstream analytics and environmental i
 
 ---
 
-# **⚠ Limitations (Accurate to Your Implementation)**
+# **⚠ Limitations**
 
 * Speeds are in **pixels/frame**, not physical units
 * CO₂ output is a **proxy**, not physically calibrated
@@ -313,5 +315,5 @@ EcoTraffic reframes traffic analysis as a **non-equilibrium dynamical system**, 
 * eco-dynamic proxies
 * segment-wise statistical tests
 
-This positions the project strongly within **Automotive**, **Object Detection**, and **Environment**, making it an ideal submission for competitions in this theme.
+
 
