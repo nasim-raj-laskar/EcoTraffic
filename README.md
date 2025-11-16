@@ -172,7 +172,7 @@ flowchart TD
 
 # **📊 Output Metrics (Per Frame)**
 
-Exported to [**frame_metrics.csv**](output\frame_metrics.csv):
+Exported to [**frame_metrics.csv**](output/frame_metrics.csv):
 
 | Column           | Meaning                            |
 | ---------------- | ---------------------------------- |
